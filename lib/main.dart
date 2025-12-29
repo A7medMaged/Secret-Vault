@@ -1,21 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:secret_vault/secret_vault.dart';
 
-void main() {
-  runApp(const SecretVault());
-}
-
-class SecretVault extends StatelessWidget {
-  const SecretVault({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Secret Vault',
-      home: Scaffold(
-        body: Center(
-          child: Text('Secret Vault'),
-        ),
-      ),
-    );
-  }
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ScreenUtil.ensureScreenSize();
+  runApp(
+    const SecretVault(),
+  );
 }
