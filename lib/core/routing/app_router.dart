@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:secret_vault/core/helpers/constants.dart';
-import 'package:secret_vault/core/helpers/secure_storage_helper.dart';
+import 'package:secret_vault/core/helpers/app_boot.dart';
 import 'package:secret_vault/core/routing/app_routes.dart';
 import 'package:secret_vault/features/home/presentation/home_screen.dart';
 import 'package:secret_vault/features/lock/logic/pin_cubit/pin_cubit.dart';
@@ -12,11 +11,7 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: AppRoutes.lockScreen,
     redirect: (context, state) async {
-      final pin = await SecureStorageHelper.getSecuredString(
-        SecureStorageKeys.pinHash,
-      );
-
-      final hasPin = pin.isNotEmpty;
+      final hasPin = AppBoot.hasPin;
 
       final isOnCreatePin = state.matchedLocation == AppRoutes.createPinScreen;
       final isOnLock = state.matchedLocation == AppRoutes.lockScreen;

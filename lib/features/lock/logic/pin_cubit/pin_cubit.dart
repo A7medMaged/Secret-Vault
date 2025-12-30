@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:developer';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:secret_vault/core/helpers/app_boot.dart';
 import 'package:secret_vault/core/helpers/constants.dart';
+import 'package:secret_vault/core/helpers/crypto_isolate.dart';
 import 'package:secret_vault/core/helpers/crypto_service.dart';
 import 'package:secret_vault/core/helpers/secure_storage_helper.dart';
 
@@ -18,10 +22,7 @@ class PinCubit extends Cubit<PinState> {
   int secondsLeft = 0;
   PinCubit() : super(const PinState.pinInitial());
 
-  void onNumberPressed(
-    int number, {
-    required bool creating,
-  }) {
+  void onNumberPressed(int number, {required bool creating}) {
     if (state is PinLocked) return;
 
     state.maybeWhen(
@@ -68,82 +69,153 @@ class PinCubit extends Cubit<PinState> {
   }
 
   Future<void> handleCreate(List<int> pin) async {
-    if (firstPin == null) {
-      firstPin = pin;
-      emit(const PinState.pinConfirming([]));
-      return;
-    }
+    try {
+      if (firstPin == null) {
+        firstPin = pin;
+        emit(const PinState.pinConfirming([]));
+        return;
+      }
 
-    if (firstPin!.join() != pin.join()) {
-      firstPin = null;
-      emit(const PinState.pinError('PINs do not match'));
-      emit(const PinState.pinInitial());
-      return;
-    }
+      if (firstPin!.join() != pin.join()) {
+        firstPin = null;
+        emit(const PinState.pinError('PINs do not match'));
+        await Future.delayed(const Duration(milliseconds: 800));
+        emit(const PinState.pinInitial());
+        return;
+      }
 
-    final pinString = pin.join();
+      final pinString = pin.join();
+      final salt = CryptoService.generateSalt();
 
-    final salt = CryptoService.generateSalt();
+      log('🔐 Creating PIN...');
 
-    final hash = CryptoService.hashPin(
-      pin: pinString,
-      salt: salt,
-    );
-
-    await SecureStorageHelper.setSecuredString(
-      SecureStorageKeys.pinSalt,
-      salt,
-    );
-    await SecureStorageHelper.setSecuredString(
-      SecureStorageKeys.pinHash,
-      hash,
-    );
-
-    SessionKeys.vaultKey = CryptoService.deriveKey(
-      pin: pinString,
-      salt: salt,
-    );
-
-    emit(const PinState.pinSuccess());
-  }
-
-  Future<void> handleValidate(List<int> pin) async {
-    final pinString = pin.join();
-
-    final salt = await SecureStorageHelper.getSecuredString(
-      SecureStorageKeys.pinSalt,
-    );
-    final savedHash = await SecureStorageHelper.getSecuredString(
-      SecureStorageKeys.pinHash,
-    );
-
-    final inputHash = CryptoService.hashPin(
-      pin: pinString,
-      salt: salt,
-    );
-
-    if (inputHash == savedHash) {
-      attempts = 0;
-
-      SessionKeys.vaultKey = CryptoService.deriveKey(
+      final hash = CryptoService.hashPinWithPBKDF2(
         pin: pinString,
         salt: salt,
       );
 
+      log('💾 Saving to storage...');
+
+      await Future.wait([
+        SecureStorageHelper.setSecuredString(SecureStorageKeys.pinSalt, salt),
+        SecureStorageHelper.setSecuredString(SecureStorageKeys.pinHash, hash),
+      ]);
+
+      log('🔑 Deriving key...');
+
+      final masterKey = await compute(
+        deriveKeyIsolate,
+        DeriveParams(pinString, salt),
+      );
+
+      final sessionKey = CryptoService.generateSessionKey();
+
+      SessionKeys.masterKey = masterKey;
+      SessionKeys.sessionKey = sessionKey;
+
+      log('✅ PIN created successfully');
+
       emit(const PinState.pinSuccess());
-    } else {
-      attempts++;
-      if (attempts >= maxAttempts) {
-        startLockout();
-      } else {
-        emit(const PinState.pinError('Incorrect PIN'));
-        emit(const PinState.pinInitial());
-      }
+      AppBoot.hasPin = true;
+    } catch (e, stackTrace) {
+      log('❌ Error creating PIN: $e');
+      log('Stack trace: $stackTrace');
+      emit(PinState.pinError('Error: $e'));
+      await Future.delayed(const Duration(milliseconds: 1000));
+      emit(const PinState.pinInitial());
     }
   }
 
-  void startLockout() {
-    secondsLeft = lockDuration;
+  Future<void> handleValidate(List<int> pin) async {
+    try {
+      final pinString = pin.join();
+
+      log('🔍 Validating PIN...');
+
+      final results = await Future.wait([
+        SecureStorageHelper.getSecuredString(SecureStorageKeys.pinSalt),
+        SecureStorageHelper.getSecuredString(SecureStorageKeys.pinHash),
+      ]);
+
+      final salt = results[0];
+      final savedHash = results[1];
+
+      log('📝 Salt: ${salt.isNotEmpty ? "Found" : "Empty"}');
+      log('📝 Hash: ${savedHash.isNotEmpty ? "Found" : "Empty"}');
+
+      if (salt.isEmpty || savedHash.isEmpty) {
+        emit(const PinState.pinError('No PIN found'));
+        return;
+      }
+
+      log('🔐 Hashing input...');
+
+      final inputHash = CryptoService.hashPinWithPBKDF2(
+        pin: pinString,
+        salt: salt,
+      );
+
+      log('🔍 Comparing hashes...');
+
+      if (inputHash == savedHash) {
+        log('✅ PIN correct!');
+
+        attempts = 0;
+
+        final masterKey = CryptoService.deriveKey(
+          pin: pinString,
+          salt: salt,
+        );
+
+        final sessionKey = CryptoService.generateSessionKey();
+
+        SessionKeys.masterKey = masterKey;
+        SessionKeys.sessionKey = sessionKey;
+
+        emit(const PinState.pinSuccess());
+        AppBoot.hasPin = true;
+      } else {
+        log('❌ PIN incorrect');
+
+        attempts++;
+        if (attempts >= maxAttempts) {
+          startLockout();
+        } else {
+          emit(const PinState.pinError('Incorrect PIN'));
+          await Future.delayed(const Duration(milliseconds: 800));
+          emit(const PinState.pinInitial());
+        }
+      }
+    } catch (e, stackTrace) {
+      log('❌ Error validating PIN: $e');
+      log('Stack trace: $stackTrace');
+      emit(PinState.pinError('Error: $e'));
+      await Future.delayed(const Duration(milliseconds: 1000));
+      emit(const PinState.pinInitial());
+    }
+  }
+
+  Future<void> resetAttempts() async {
+    attempts = 0;
+    await Future.wait([
+      SecureStorageHelper.setSecuredString(SecureStorageKeys.attemptsKey, '0'),
+      SecureStorageHelper.setSecuredString(SecureStorageKeys.lockUntilKey, ''),
+    ]);
+  }
+
+  Future<void> saveLockTime() async {
+    final lockUntil = DateTime.now().add(const Duration(seconds: lockDuration));
+    await SecureStorageHelper.setSecuredString(
+      SecureStorageKeys.lockUntilKey,
+      lockUntil.toIso8601String(),
+    );
+  }
+
+  void startLockout({bool resuming = false}) {
+    if (!resuming) {
+      secondsLeft = lockDuration;
+    }
+
     emit(PinState.pinLocked(secondsLeft));
 
     lockTimer?.cancel();
@@ -154,7 +226,7 @@ class PinCubit extends Cubit<PinState> {
 
         if (secondsLeft <= 0) {
           timer.cancel();
-          attempts = 0;
+          resetAttempts();
           emit(const PinState.pinInitial());
         } else {
           emit(PinState.pinLocked(secondsLeft));
@@ -162,4 +234,23 @@ class PinCubit extends Cubit<PinState> {
       },
     );
   }
+
+  @override
+  Future<void> close() {
+    lockTimer?.cancel();
+    return super.close();
+  }
+}
+
+class HashParams {
+  final String pin;
+  final String salt;
+  HashParams(this.pin, this.salt);
+}
+
+String hashPinIsolate(HashParams params) {
+  return CryptoService.hashPinWithPBKDF2(
+    pin: params.pin,
+    salt: params.salt,
+  );
 }
