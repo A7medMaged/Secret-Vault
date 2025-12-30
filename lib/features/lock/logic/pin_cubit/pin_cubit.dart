@@ -67,42 +67,69 @@ class PinCubit extends Cubit<PinState> {
     );
   }
 
-  void handleCreate(List<int> pin) async {
+  Future<void> handleCreate(List<int> pin) async {
     if (firstPin == null) {
       firstPin = pin;
       emit(const PinState.pinConfirming([]));
       return;
     }
-    final salt = CryptoService.generateSalt();
-    final hash = CryptoService.hashPin(pin: pin.join(), salt: salt);
-    if (firstPin!.join() == pin.join()) {
-      await SecureStorageHelper.setSecuredString(
-        SecureStorageKeys.pinSalt,
-        salt,
-      );
-      await SecureStorageHelper.setSecuredString(
-        SecureStorageKeys.pinHash,
-        hash,
-      );
-      emit(const PinState.pinSuccess());
-    } else {
+
+    if (firstPin!.join() != pin.join()) {
       firstPin = null;
       emit(const PinState.pinError('PINs do not match'));
       emit(const PinState.pinInitial());
+      return;
     }
+
+    final pinString = pin.join();
+
+    final salt = CryptoService.generateSalt();
+
+    final hash = CryptoService.hashPin(
+      pin: pinString,
+      salt: salt,
+    );
+
+    await SecureStorageHelper.setSecuredString(
+      SecureStorageKeys.pinSalt,
+      salt,
+    );
+    await SecureStorageHelper.setSecuredString(
+      SecureStorageKeys.pinHash,
+      hash,
+    );
+
+    SessionKeys.vaultKey = CryptoService.deriveKey(
+      pin: pinString,
+      salt: salt,
+    );
+
+    emit(const PinState.pinSuccess());
   }
 
   Future<void> handleValidate(List<int> pin) async {
+    final pinString = pin.join();
+
     final salt = await SecureStorageHelper.getSecuredString(
       SecureStorageKeys.pinSalt,
     );
-    final hash = CryptoService.hashPin(pin: pin.join(), salt: salt);
     final savedHash = await SecureStorageHelper.getSecuredString(
       SecureStorageKeys.pinHash,
     );
 
-    if (savedHash == hash) {
+    final inputHash = CryptoService.hashPin(
+      pin: pinString,
+      salt: salt,
+    );
+
+    if (inputHash == savedHash) {
       attempts = 0;
+
+      SessionKeys.vaultKey = CryptoService.deriveKey(
+        pin: pinString,
+        salt: salt,
+      );
+
       emit(const PinState.pinSuccess());
     } else {
       attempts++;
