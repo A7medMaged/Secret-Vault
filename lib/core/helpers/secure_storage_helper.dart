@@ -1,15 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageHelper {
-  // private constructor as I don't want to allow creating an instance of this class itself.
   SecureStorageHelper._();
 
   static const _secureStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      // ignore: deprecated_member_use
-      encryptedSharedPreferences: true,
-    ),
     iOptions: IOSOptions(
       accessibility: KeychainAccessibility.first_unlock,
     ),
@@ -17,21 +12,75 @@ class SecureStorageHelper {
 
   /// Saves a [value] with a [key] in the FlutterSecureStorage.
   static Future<void> setSecuredString(String key, String value) async {
-    debugPrint(
-      "FlutterSecureStorage : setSecuredString with key : $key",
-    );
-    await _secureStorage.write(key: key, value: value);
+    try {
+      if (kDebugMode) {
+        debugPrint('FlutterSecureStorage : setSecuredString with key : $key');
+      }
+      await _secureStorage.write(key: key, value: value);
+    } catch (e) {
+      debugPrint('❌ Error saving to secure storage: $e');
+      rethrow;
+    }
   }
 
-  /// Gets an String value from FlutterSecureStorage with given [key].
+  /// Gets a String value from FlutterSecureStorage with given [key].
   static Future<String> getSecuredString(String key) async {
-    debugPrint('FlutterSecureStorage : getSecuredString with key : $key');
-    return await _secureStorage.read(key: key) ?? '';
+    try {
+      if (kDebugMode) {
+        debugPrint('FlutterSecureStorage : getSecuredString with key : $key');
+      }
+      return await _secureStorage.read(key: key) ?? '';
+    } catch (e) {
+      debugPrint('❌ Error reading from secure storage: $e');
+      return '';
+    }
+  }
+
+  /// Deletes a specific key from FlutterSecureStorage
+  static Future<void> deleteSecuredString(String key) async {
+    try {
+      if (kDebugMode) {
+        debugPrint(
+          'FlutterSecureStorage : deleteSecuredString with key : $key',
+        );
+      }
+      await _secureStorage.delete(key: key);
+    } catch (e) {
+      debugPrint('❌ Error deleting from secure storage: $e');
+      rethrow;
+    }
+  }
+
+  /// Checks if a key exists in FlutterSecureStorage
+  static Future<bool> containsKey(String key) async {
+    try {
+      return await _secureStorage.containsKey(key: key);
+    } catch (e) {
+      debugPrint('❌ Error checking key existence: $e');
+      return false;
+    }
+  }
+
+  /// Gets all keys from FlutterSecureStorage
+  static Future<Map<String, String>> getAllSecuredData() async {
+    try {
+      return await _secureStorage.readAll();
+    } catch (e) {
+      debugPrint('❌ Error reading all data: $e');
+      return {};
+    }
   }
 
   /// Removes all keys and values in the FlutterSecureStorage
   static Future<void> clearAllSecuredData() async {
-    debugPrint('FlutterSecureStorage : all data has been cleared');
-    await _secureStorage.deleteAll();
+    try {
+      if (kDebugMode) {
+        debugPrint('FlutterSecureStorage : all data has been cleared');
+      }
+      await _secureStorage.deleteAll();
+    } catch (e) {
+      debugPrint('❌ Error clearing secure storage: $e');
+      rethrow;
+    }
   }
 }

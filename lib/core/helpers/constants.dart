@@ -1,17 +1,29 @@
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'package:secret_vault/core/helpers/crypto_service.dart';
 
 class SecureStorageKeys {
   static const String pinSalt = 'pin_salt';
   static const pinHash = 'pin_hash';
   static const String lockUntilKey = 'lock_until';
+  static const String attemptsKey = 'attempts';
 }
 
 class SessionKeys {
-  static Uint8List? vaultKey;
+  static Uint8List? masterKey;
+  static Uint8List? sessionKey;
 
-  static bool get hasKey => vaultKey != null;
+  static Future<Uint8List?> getMasterKey(String pin, String salt) async {
+    final masterKey = CryptoService.deriveKey(
+      pin: pin,
+      salt: salt,
+    );
+    return masterKey;
+  }
+
+  static bool get hasSession => sessionKey != null;
 
   static void clear() {
-    vaultKey = null;
+    masterKey = null;
+    sessionKey = null;
   }
 }
