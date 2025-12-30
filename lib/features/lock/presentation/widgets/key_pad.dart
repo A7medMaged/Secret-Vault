@@ -1,43 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:secret_vault/core/helpers/extensions.dart';
-import 'package:secret_vault/core/routing/app_routes.dart';
 import 'package:secret_vault/core/theming/colors.dart';
+import 'package:secret_vault/features/lock/logic/pin_cubit/pin_cubit.dart';
 
 class Keypad extends StatelessWidget {
-  const Keypad({super.key});
+  final bool creating;
+
+  const Keypad({
+    super.key,
+    required this.creating,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _row(['1', '2', '3']),
-        _row(['4', '5', '6']),
-        _row(['7', '8', '9']),
+        row(context, ['1', '2', '3']),
+        row(context, ['4', '5', '6']),
+        row(context, ['7', '8', '9']),
         Row(
-          mainAxisAlignment: .spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _iconButton(Icons.fingerprint),
-            _numberButton('0'),
-            _iconButton(Icons.backspace_outlined),
+            fingerprintButton(),
+            numberButton(context, '0'),
+            deleteButton(context),
           ],
         ),
       ],
     );
   }
 
-  Widget _row(List<String> numbers) {
+  Widget row(BuildContext context, List<String> numbers) {
     return Padding(
       padding: .symmetric(vertical: 10.h),
       child: Row(
-        mainAxisAlignment: .spaceEvenly,
-        children: numbers.map(_numberButton).toList(),
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: numbers
+            .map((number) => numberButton(context, number))
+            .toList(),
       ),
     );
   }
 
-  Widget _numberButton(String number) {
-    return _KeyButton(
+  Widget numberButton(BuildContext context, String number) {
+    return KeyButton(
       child: Text(
         number,
         style: TextStyle(
@@ -45,23 +52,49 @@ class Keypad extends StatelessWidget {
           color: white,
         ),
       ),
+      onTap: () {
+        context.read<PinCubit>().onNumberPressed(
+          int.parse(number),
+          creating: creating,
+        );
+      },
     );
   }
 
-  Widget _iconButton(IconData icon) {
-    return _KeyButton(
+  Widget deleteButton(BuildContext context) {
+    return KeyButton(
       child: Icon(
-        icon,
+        Icons.backspace_outlined,
         color: mainColor,
         size: 24.sp,
       ),
+      onTap: () {
+        context.read<PinCubit>().onDeletePressed();
+      },
+    );
+  }
+
+  Widget fingerprintButton() {
+    return KeyButton(
+      child: Icon(
+        Icons.fingerprint,
+        color: mainColor,
+        size: 24.sp,
+      ),
+      onTap: () {},
     );
   }
 }
 
-class _KeyButton extends StatelessWidget {
+class KeyButton extends StatelessWidget {
   final Widget child;
-  const _KeyButton({required this.child});
+  final VoidCallback onTap;
+
+  const KeyButton({
+    super.key,
+    required this.child,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +105,7 @@ class _KeyButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: .circular(32.r),
-          onTap: () {
-            context.pushReplacement(AppRoutes.homeScreen);
-          },
+          onTap: onTap,
           child: Center(child: child),
         ),
       ),

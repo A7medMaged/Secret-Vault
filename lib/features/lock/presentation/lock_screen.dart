@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:secret_vault/core/helpers/extensions.dart';
 import 'package:secret_vault/core/helpers/spacing.dart';
 import 'package:secret_vault/core/theming/colors.dart';
-import 'package:secret_vault/features/lock/presentation/widgets/dots.dart';
+import 'package:secret_vault/features/lock/presentation/widgets/dots_bloc_builder.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/key_pad.dart';
+import 'package:secret_vault/features/lock/presentation/widgets/logo.dart';
+import 'package:secret_vault/features/lock/presentation/widgets/pin_bloc_listener.dart';
 
 class LockScreen extends StatelessWidget {
   const LockScreen({super.key});
@@ -17,27 +19,7 @@ class LockScreen extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(),
-              Container(
-                width: 75.w,
-                height: 75.h,
-                decoration: BoxDecoration(
-                  color: secondaryColor,
-                  borderRadius: BorderRadius.circular(12.r),
-                  boxShadow: [
-                    BoxShadow(
-                      // ignore: deprecated_member_use
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 4.r,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.lock,
-                  color: mainColor,
-                  size: 36.sp,
-                ),
-              ),
+              const Logo(),
               verticalSpace(16),
               Text(
                 'Secret Vault',
@@ -49,9 +31,9 @@ class LockScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 12.sp, color: grey),
               ),
               verticalSpace(24),
-              const Dots(),
+              const DotsBlocBuilder(),
               verticalSpace(24),
-              const Keypad(),
+              const Keypad(creating: false),
               verticalSpace(48),
               TextButton(
                 onPressed: () {},
@@ -64,6 +46,7 @@ class LockScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
+              const PinBlocListener(),
             ],
           ),
         ),
