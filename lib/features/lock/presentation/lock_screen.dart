@@ -4,6 +4,7 @@ import 'package:secret_vault/core/helpers/spacing.dart';
 import 'package:secret_vault/core/theming/colors.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/dots_bloc_builder.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/key_pad.dart';
+import 'package:secret_vault/features/lock/presentation/widgets/lockout_bloc_builder.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/logo.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/pin_bloc_listener.dart';
 
@@ -32,6 +33,7 @@ class LockScreen extends StatelessWidget {
               ),
               verticalSpace(24),
               const DotsBlocBuilder(),
+              const LockoutBlocBuilder(),
               verticalSpace(24),
               const Keypad(creating: false),
               verticalSpace(48),

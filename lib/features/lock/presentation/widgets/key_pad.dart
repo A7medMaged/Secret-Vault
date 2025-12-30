@@ -14,20 +14,34 @@ class Keypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        row(context, ['1', '2', '3']),
-        row(context, ['4', '5', '6']),
-        row(context, ['7', '8', '9']),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            fingerprintButton(),
-            numberButton(context, '0'),
-            deleteButton(context),
-          ],
-        ),
-      ],
+    return BlocBuilder<PinCubit, PinState>(
+      builder: (context, state) {
+        final isLocked = state.maybeWhen(
+          pinLocked: (_) => true,
+          orElse: () => false,
+        );
+        return IgnorePointer(
+          ignoring: isLocked,
+          child: Opacity(
+            opacity: isLocked ? 0.4 : 1,
+            child: Column(
+              children: [
+                row(context, ['1', '2', '3']),
+                row(context, ['4', '5', '6']),
+                row(context, ['7', '8', '9']),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    fingerprintButton(),
+                    numberButton(context, '0'),
+                    deleteButton(context),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

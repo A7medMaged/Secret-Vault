@@ -55,13 +55,14 @@ extension PinStatePatterns on PinState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( PinInitial value)?  pinInitial,TResult Function( PinEntering value)?  pinEntering,TResult Function( PinConfirming value)?  pinConfirming,TResult Function( PinSuccess value)?  pinSuccess,TResult Function( PinError value)?  pinError,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( PinInitial value)?  pinInitial,TResult Function( PinEntering value)?  pinEntering,TResult Function( PinConfirming value)?  pinConfirming,TResult Function( PinLocked value)?  pinLocked,TResult Function( PinSuccess value)?  pinSuccess,TResult Function( PinError value)?  pinError,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case PinInitial() when pinInitial != null:
 return pinInitial(_that);case PinEntering() when pinEntering != null:
 return pinEntering(_that);case PinConfirming() when pinConfirming != null:
-return pinConfirming(_that);case PinSuccess() when pinSuccess != null:
+return pinConfirming(_that);case PinLocked() when pinLocked != null:
+return pinLocked(_that);case PinSuccess() when pinSuccess != null:
 return pinSuccess(_that);case PinError() when pinError != null:
 return pinError(_that);case _:
   return orElse();
@@ -81,13 +82,14 @@ return pinError(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( PinInitial value)  pinInitial,required TResult Function( PinEntering value)  pinEntering,required TResult Function( PinConfirming value)  pinConfirming,required TResult Function( PinSuccess value)  pinSuccess,required TResult Function( PinError value)  pinError,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( PinInitial value)  pinInitial,required TResult Function( PinEntering value)  pinEntering,required TResult Function( PinConfirming value)  pinConfirming,required TResult Function( PinLocked value)  pinLocked,required TResult Function( PinSuccess value)  pinSuccess,required TResult Function( PinError value)  pinError,}){
 final _that = this;
 switch (_that) {
 case PinInitial():
 return pinInitial(_that);case PinEntering():
 return pinEntering(_that);case PinConfirming():
-return pinConfirming(_that);case PinSuccess():
+return pinConfirming(_that);case PinLocked():
+return pinLocked(_that);case PinSuccess():
 return pinSuccess(_that);case PinError():
 return pinError(_that);case _:
   throw StateError('Unexpected subclass');
@@ -106,13 +108,14 @@ return pinError(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( PinInitial value)?  pinInitial,TResult? Function( PinEntering value)?  pinEntering,TResult? Function( PinConfirming value)?  pinConfirming,TResult? Function( PinSuccess value)?  pinSuccess,TResult? Function( PinError value)?  pinError,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( PinInitial value)?  pinInitial,TResult? Function( PinEntering value)?  pinEntering,TResult? Function( PinConfirming value)?  pinConfirming,TResult? Function( PinLocked value)?  pinLocked,TResult? Function( PinSuccess value)?  pinSuccess,TResult? Function( PinError value)?  pinError,}){
 final _that = this;
 switch (_that) {
 case PinInitial() when pinInitial != null:
 return pinInitial(_that);case PinEntering() when pinEntering != null:
 return pinEntering(_that);case PinConfirming() when pinConfirming != null:
-return pinConfirming(_that);case PinSuccess() when pinSuccess != null:
+return pinConfirming(_that);case PinLocked() when pinLocked != null:
+return pinLocked(_that);case PinSuccess() when pinSuccess != null:
 return pinSuccess(_that);case PinError() when pinError != null:
 return pinError(_that);case _:
   return null;
@@ -131,12 +134,13 @@ return pinError(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  pinInitial,TResult Function( List<int> pin)?  pinEntering,TResult Function( List<int> pin)?  pinConfirming,TResult Function()?  pinSuccess,TResult Function( String error)?  pinError,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  pinInitial,TResult Function( List<int> pin)?  pinEntering,TResult Function( List<int> pin)?  pinConfirming,TResult Function( int secondsLeft)?  pinLocked,TResult Function()?  pinSuccess,TResult Function( String error)?  pinError,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case PinInitial() when pinInitial != null:
 return pinInitial();case PinEntering() when pinEntering != null:
 return pinEntering(_that.pin);case PinConfirming() when pinConfirming != null:
-return pinConfirming(_that.pin);case PinSuccess() when pinSuccess != null:
+return pinConfirming(_that.pin);case PinLocked() when pinLocked != null:
+return pinLocked(_that.secondsLeft);case PinSuccess() when pinSuccess != null:
 return pinSuccess();case PinError() when pinError != null:
 return pinError(_that.error);case _:
   return orElse();
@@ -156,12 +160,13 @@ return pinError(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  pinInitial,required TResult Function( List<int> pin)  pinEntering,required TResult Function( List<int> pin)  pinConfirming,required TResult Function()  pinSuccess,required TResult Function( String error)  pinError,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  pinInitial,required TResult Function( List<int> pin)  pinEntering,required TResult Function( List<int> pin)  pinConfirming,required TResult Function( int secondsLeft)  pinLocked,required TResult Function()  pinSuccess,required TResult Function( String error)  pinError,}) {final _that = this;
 switch (_that) {
 case PinInitial():
 return pinInitial();case PinEntering():
 return pinEntering(_that.pin);case PinConfirming():
-return pinConfirming(_that.pin);case PinSuccess():
+return pinConfirming(_that.pin);case PinLocked():
+return pinLocked(_that.secondsLeft);case PinSuccess():
 return pinSuccess();case PinError():
 return pinError(_that.error);case _:
   throw StateError('Unexpected subclass');
@@ -180,12 +185,13 @@ return pinError(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  pinInitial,TResult? Function( List<int> pin)?  pinEntering,TResult? Function( List<int> pin)?  pinConfirming,TResult? Function()?  pinSuccess,TResult? Function( String error)?  pinError,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  pinInitial,TResult? Function( List<int> pin)?  pinEntering,TResult? Function( List<int> pin)?  pinConfirming,TResult? Function( int secondsLeft)?  pinLocked,TResult? Function()?  pinSuccess,TResult? Function( String error)?  pinError,}) {final _that = this;
 switch (_that) {
 case PinInitial() when pinInitial != null:
 return pinInitial();case PinEntering() when pinEntering != null:
 return pinEntering(_that.pin);case PinConfirming() when pinConfirming != null:
-return pinConfirming(_that.pin);case PinSuccess() when pinSuccess != null:
+return pinConfirming(_that.pin);case PinLocked() when pinLocked != null:
+return pinLocked(_that.secondsLeft);case PinSuccess() when pinSuccess != null:
 return pinSuccess();case PinError() when pinError != null:
 return pinError(_that.error);case _:
   return null;
@@ -365,6 +371,72 @@ class _$PinConfirmingCopyWithImpl<$Res>
   return _then(PinConfirming(
 null == pin ? _self._pin : pin // ignore: cast_nullable_to_non_nullable
 as List<int>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class PinLocked implements PinState {
+  const PinLocked(this.secondsLeft);
+  
+
+ final  int secondsLeft;
+
+/// Create a copy of PinState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PinLockedCopyWith<PinLocked> get copyWith => _$PinLockedCopyWithImpl<PinLocked>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PinLocked&&(identical(other.secondsLeft, secondsLeft) || other.secondsLeft == secondsLeft));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,secondsLeft);
+
+@override
+String toString() {
+  return 'PinState.pinLocked(secondsLeft: $secondsLeft)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PinLockedCopyWith<$Res> implements $PinStateCopyWith<$Res> {
+  factory $PinLockedCopyWith(PinLocked value, $Res Function(PinLocked) _then) = _$PinLockedCopyWithImpl;
+@useResult
+$Res call({
+ int secondsLeft
+});
+
+
+
+
+}
+/// @nodoc
+class _$PinLockedCopyWithImpl<$Res>
+    implements $PinLockedCopyWith<$Res> {
+  _$PinLockedCopyWithImpl(this._self, this._then);
+
+  final PinLocked _self;
+  final $Res Function(PinLocked) _then;
+
+/// Create a copy of PinState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? secondsLeft = null,}) {
+  return _then(PinLocked(
+null == secondsLeft ? _self.secondsLeft : secondsLeft // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

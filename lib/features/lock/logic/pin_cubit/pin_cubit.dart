@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:secret_vault/core/helpers/constants.dart';
@@ -9,12 +11,19 @@ part 'pin_cubit.freezed.dart';
 class PinCubit extends Cubit<PinState> {
   static const int pinLength = 4;
   List<int>? firstPin;
+  static const int maxAttempts = 3;
+  static const int lockDuration = 60;
+  int attempts = 0;
+  Timer? lockTimer;
+  int secondsLeft = 0;
   PinCubit() : super(const PinState.pinInitial());
 
   void onNumberPressed(
     int number, {
     required bool creating,
   }) {
+    if (state is PinLocked) return;
+
     state.maybeWhen(
       pinEntering: (pin) => addDigit(pin, number, creating),
       pinConfirming: (pin) => addDigit(pin, number, creating),
@@ -43,6 +52,8 @@ class PinCubit extends Cubit<PinState> {
   }
 
   void onDeletePressed() {
+    if (state is PinLocked) return;
+
     state.maybeWhen(
       pinEntering: (pin) {
         if (pin.isEmpty) return;
@@ -82,10 +93,37 @@ class PinCubit extends Cubit<PinState> {
     );
 
     if (savedPin == pin.join()) {
+      attempts = 0;
       emit(const PinState.pinSuccess());
     } else {
-      emit(const PinState.pinError('Incorrect PIN'));
-      emit(const PinState.pinInitial());
+      attempts++;
+      if (attempts >= maxAttempts) {
+        startLockout();
+      } else {
+        emit(const PinState.pinError('Incorrect PIN'));
+        emit(const PinState.pinInitial());
+      }
     }
+  }
+
+  void startLockout() {
+    secondsLeft = lockDuration;
+    emit(PinState.pinLocked(secondsLeft));
+
+    lockTimer?.cancel();
+    lockTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) {
+        secondsLeft--;
+
+        if (secondsLeft <= 0) {
+          timer.cancel();
+          attempts = 0;
+          emit(const PinState.pinInitial());
+        } else {
+          emit(PinState.pinLocked(secondsLeft));
+        }
+      },
+    );
   }
 }
