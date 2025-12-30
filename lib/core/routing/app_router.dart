@@ -13,7 +13,7 @@ class AppRouter {
     initialLocation: AppRoutes.lockScreen,
     redirect: (context, state) async {
       final pin = await SecureStorageHelper.getSecuredString(
-        SecureStorageKeys.pinKey,
+        SecureStorageKeys.pinHash,
       );
 
       final hasPin = pin.isNotEmpty;

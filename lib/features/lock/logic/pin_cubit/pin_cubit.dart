@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:secret_vault/core/helpers/constants.dart';
+import 'package:secret_vault/core/helpers/crypto_service.dart';
 import 'package:secret_vault/core/helpers/secure_storage_helper.dart';
 
 part 'pin_state.dart';
@@ -73,11 +73,16 @@ class PinCubit extends Cubit<PinState> {
       emit(const PinState.pinConfirming([]));
       return;
     }
-
+    final salt = CryptoService.generateSalt();
+    final hash = CryptoService.hashPin(pin: pin.join(), salt: salt);
     if (firstPin!.join() == pin.join()) {
       await SecureStorageHelper.setSecuredString(
-        SecureStorageKeys.pinKey,
-        pin.join(),
+        SecureStorageKeys.pinSalt,
+        salt,
+      );
+      await SecureStorageHelper.setSecuredString(
+        SecureStorageKeys.pinHash,
+        hash,
       );
       emit(const PinState.pinSuccess());
     } else {
@@ -88,11 +93,15 @@ class PinCubit extends Cubit<PinState> {
   }
 
   Future<void> handleValidate(List<int> pin) async {
-    final savedPin = await SecureStorageHelper.getSecuredString(
-      SecureStorageKeys.pinKey,
+    final salt = await SecureStorageHelper.getSecuredString(
+      SecureStorageKeys.pinSalt,
+    );
+    final hash = CryptoService.hashPin(pin: pin.join(), salt: salt);
+    final savedHash = await SecureStorageHelper.getSecuredString(
+      SecureStorageKeys.pinHash,
     );
 
-    if (savedPin == pin.join()) {
+    if (savedHash == hash) {
       attempts = 0;
       emit(const PinState.pinSuccess());
     } else {
