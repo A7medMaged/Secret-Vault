@@ -6,6 +6,9 @@ class SecureStorageKeys {
   static const pinHash = 'pin_hash';
   static const String lockUntilKey = 'lock_until';
   static const String attemptsKey = 'attempts';
+  static const String encryptedPinKey = 'encrypted_pin';
+  static const String biometricEnabledKey = 'biometric_enabled';
+  static const String biometricTypeKey = 'biometric_type';
 }
 
 class SessionKeys {
