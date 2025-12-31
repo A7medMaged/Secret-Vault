@@ -3,9 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:secret_vault/core/helpers/app_boot.dart';
 import 'package:secret_vault/core/routing/app_routes.dart';
 import 'package:secret_vault/features/home/presentation/home_screen.dart';
+import 'package:secret_vault/features/lock/logic/biometric_cubit/biometric_cubit.dart';
 import 'package:secret_vault/features/lock/logic/pin_cubit/pin_cubit.dart';
 import 'package:secret_vault/features/lock/presentation/create_pin_screen.dart';
 import 'package:secret_vault/features/lock/presentation/lock_screen.dart';
+import 'package:secret_vault/features/settings/presentation/settings_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -34,14 +36,27 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.lockScreen,
-        builder: (context, state) => BlocProvider(
-          create: (context) => PinCubit(),
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (context) => PinCubit()),
+            BlocProvider(create: (context) => BiometricCubit()),
+          ],
           child: const LockScreen(),
         ),
       ),
       GoRoute(
         path: AppRoutes.homeScreen,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settingsScreen,
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (context) => PinCubit()),
+            BlocProvider(create: (context) => BiometricCubit()),
+          ],
+          child: const SettingsScreen(),
+        ),
       ),
     ],
   );

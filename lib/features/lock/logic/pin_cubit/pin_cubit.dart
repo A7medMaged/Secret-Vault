@@ -240,6 +240,24 @@ class PinCubit extends Cubit<PinState> {
     lockTimer?.cancel();
     return super.close();
   }
+
+  Future<bool> verifyPin(String inputPin) async {
+    final salt = await SecureStorageHelper.getSecuredString(
+      SecureStorageKeys.pinSalt,
+    );
+    final savedHash = await SecureStorageHelper.getSecuredString(
+      SecureStorageKeys.pinHash,
+    );
+
+    if (salt.isEmpty || savedHash.isEmpty) return false;
+
+    final inputHash = CryptoService.hashPinWithPBKDF2(
+      pin: inputPin,
+      salt: salt,
+    );
+
+    return inputHash == savedHash;
+  }
 }
 
 class HashParams {

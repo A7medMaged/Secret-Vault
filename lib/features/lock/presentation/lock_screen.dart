@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:secret_vault/core/helpers/extensions.dart';
 import 'package:secret_vault/core/helpers/spacing.dart';
 import 'package:secret_vault/core/theming/colors.dart';
+import 'package:secret_vault/features/lock/presentation/widgets/biometric_bloc_listener.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/dots_bloc_builder.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/key_pad.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/lockout_bloc_builder.dart';
@@ -49,6 +50,7 @@ class LockScreen extends StatelessWidget {
               ),
               const Spacer(),
               const PinBlocListener(),
+              const BiometricBlocListener(),
             ],
           ),
         ),

@@ -12,11 +12,17 @@ part of 'pin_cubit.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$PinState {
+mixin _$PinState implements DiagnosticableTreeMixin {
 
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'PinState'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -28,7 +34,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'PinState()';
 }
 
@@ -91,10 +97,7 @@ return pinEntering(_that);case PinConfirming():
 return pinConfirming(_that);case PinLocked():
 return pinLocked(_that);case PinSuccess():
 return pinSuccess(_that);case PinError():
-return pinError(_that);case _:
-  throw StateError('Unexpected subclass');
-
-}
+return pinError(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -168,10 +171,7 @@ return pinEntering(_that.pin);case PinConfirming():
 return pinConfirming(_that.pin);case PinLocked():
 return pinLocked(_that.secondsLeft);case PinSuccess():
 return pinSuccess();case PinError():
-return pinError(_that.error);case _:
-  throw StateError('Unexpected subclass');
-
-}
+return pinError(_that.error);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -204,7 +204,7 @@ return pinError(_that.error);case _:
 /// @nodoc
 
 
-class PinInitial implements PinState {
+class PinInitial with DiagnosticableTreeMixin implements PinState {
   const PinInitial();
   
 
@@ -212,6 +212,12 @@ class PinInitial implements PinState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'PinState.pinInitial'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -223,7 +229,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'PinState.pinInitial()';
 }
 
@@ -236,7 +242,7 @@ String toString() {
 /// @nodoc
 
 
-class PinEntering implements PinState {
+class PinEntering with DiagnosticableTreeMixin implements PinState {
   const PinEntering(final  List<int> pin): _pin = pin;
   
 
@@ -255,6 +261,12 @@ class PinEntering implements PinState {
 $PinEnteringCopyWith<PinEntering> get copyWith => _$PinEnteringCopyWithImpl<PinEntering>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'PinState.pinEntering'))
+    ..add(DiagnosticsProperty('pin', pin));
+}
 
 @override
 bool operator ==(Object other) {
@@ -266,7 +278,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_pin));
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'PinState.pinEntering(pin: $pin)';
 }
 
@@ -308,7 +320,7 @@ as List<int>,
 /// @nodoc
 
 
-class PinConfirming implements PinState {
+class PinConfirming with DiagnosticableTreeMixin implements PinState {
   const PinConfirming(final  List<int> pin): _pin = pin;
   
 
@@ -327,6 +339,12 @@ class PinConfirming implements PinState {
 $PinConfirmingCopyWith<PinConfirming> get copyWith => _$PinConfirmingCopyWithImpl<PinConfirming>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'PinState.pinConfirming'))
+    ..add(DiagnosticsProperty('pin', pin));
+}
 
 @override
 bool operator ==(Object other) {
@@ -338,7 +356,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_pin));
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'PinState.pinConfirming(pin: $pin)';
 }
 
@@ -380,7 +398,7 @@ as List<int>,
 /// @nodoc
 
 
-class PinLocked implements PinState {
+class PinLocked with DiagnosticableTreeMixin implements PinState {
   const PinLocked(this.secondsLeft);
   
 
@@ -393,6 +411,12 @@ class PinLocked implements PinState {
 $PinLockedCopyWith<PinLocked> get copyWith => _$PinLockedCopyWithImpl<PinLocked>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'PinState.pinLocked'))
+    ..add(DiagnosticsProperty('secondsLeft', secondsLeft));
+}
 
 @override
 bool operator ==(Object other) {
@@ -404,7 +428,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,secondsLeft);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'PinState.pinLocked(secondsLeft: $secondsLeft)';
 }
 
@@ -446,7 +470,7 @@ as int,
 /// @nodoc
 
 
-class PinSuccess implements PinState {
+class PinSuccess with DiagnosticableTreeMixin implements PinState {
   const PinSuccess();
   
 
@@ -454,6 +478,12 @@ class PinSuccess implements PinState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'PinState.pinSuccess'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -465,7 +495,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'PinState.pinSuccess()';
 }
 
@@ -478,7 +508,7 @@ String toString() {
 /// @nodoc
 
 
-class PinError implements PinState {
+class PinError with DiagnosticableTreeMixin implements PinState {
   const PinError(this.error);
   
 
@@ -491,6 +521,12 @@ class PinError implements PinState {
 $PinErrorCopyWith<PinError> get copyWith => _$PinErrorCopyWithImpl<PinError>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'PinState.pinError'))
+    ..add(DiagnosticsProperty('error', error));
+}
 
 @override
 bool operator ==(Object other) {
@@ -502,7 +538,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,error);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'PinState.pinError(error: $error)';
 }
 
