@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:secret_vault/core/helpers/extensions.dart';
+import 'package:secret_vault/core/theming/text_styles.dart';
 import 'package:secret_vault/features/lock/logic/pin_cubit/pin_cubit.dart';
 
 class LockoutBlocBuilder extends StatelessWidget {
@@ -18,8 +19,7 @@ class LockoutBlocBuilder extends StatelessWidget {
               child: Text(
                 'Too many attempts. Try again in $seconds seconds',
                 key: ValueKey(seconds),
-                style: TextStyle(
-                  fontSize: 13.sp,
+                style: TextStyles.font13LightGreyRegular.copyWith(
                   color: Colors.redAccent,
                 ),
               ),

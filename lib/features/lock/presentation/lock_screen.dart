@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:secret_vault/core/helpers/extensions.dart';
 import 'package:secret_vault/core/helpers/spacing.dart';
-import 'package:secret_vault/core/theming/colors.dart';
+import 'package:secret_vault/core/theming/text_styles.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/biometric_bloc_listener.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/dots_bloc_builder.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/key_pad.dart';
@@ -25,12 +24,12 @@ class LockScreen extends StatelessWidget {
               verticalSpace(16),
               Text(
                 'Secret Vault',
-                style: TextStyle(fontSize: 24.sp),
+                style: TextStyles.font24mainBold,
               ),
               verticalSpace(4),
               Text(
                 'Enter PIN to unlock',
-                style: TextStyle(fontSize: 12.sp, color: grey),
+                style: TextStyles.font12GreySemiBold,
               ),
               verticalSpace(24),
               const DotsBlocBuilder(),
@@ -42,10 +41,7 @@ class LockScreen extends StatelessWidget {
                 onPressed: () {},
                 child: Text(
                   'Forgot PIN?',
-                  style: TextStyle(
-                    color: lightGray,
-                    fontSize: 13.sp,
-                  ),
+                  style: TextStyles.font13LightGreyRegular,
                 ),
               ),
               const Spacer(),
