@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:secret_vault/core/routing/app_router.dart';
 import 'package:secret_vault/core/theming/colors.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SecretVault extends StatelessWidget {
   final AppRouter appRouter;
@@ -18,7 +17,6 @@ class SecretVault extends StatelessWidget {
         routerConfig: AppRouter.router,
         theme: ThemeData.dark().copyWith(
           scaffoldBackgroundColor: scaffoldColor,
-          textTheme: GoogleFonts.exo2TextTheme(ThemeData.dark().textTheme),
         ),
       ),
     );

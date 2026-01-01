@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:secret_vault/core/helpers/extensions.dart';
 import 'package:secret_vault/core/theming/colors.dart';
+import 'package:secret_vault/core/theming/text_styles.dart';
+import 'package:secret_vault/core/widgets/app_text_button.dart';
+import 'package:secret_vault/core/widgets/app_text_form_field.dart';
 import 'package:secret_vault/features/lock/logic/biometric_cubit/biometric_cubit.dart';
 import 'package:secret_vault/features/lock/logic/pin_cubit/pin_cubit.dart';
 
@@ -12,7 +16,11 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Security'),
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'Security',
+          style: TextStyles.font24mainBold,
+        ),
       ),
       body: BlocBuilder<BiometricCubit, BiometricState>(
         builder: (context, state) {
@@ -66,9 +74,13 @@ class SettingsScreen extends StatelessWidget {
 
         return SwitchListTile(
           secondary: const Icon(Icons.fingerprint),
-          title: Text('Unlock with $biometricType'),
-          subtitle: const Text(
+          title: Text(
+            'Unlock with $biometricType',
+            style: TextStyles.font16Regular,
+          ),
+          subtitle: Text(
             'Use biometric authentication to unlock the vault',
+            style: TextStyles.font16Regular,
           ),
           value: enabled,
           activeThumbColor: mainColor,
@@ -146,15 +158,17 @@ class SettingsScreen extends StatelessWidget {
       builder: (_) {
         return AlertDialog(
           title: const Text('Confirm PIN'),
-          content: TextField(
+          backgroundColor: scaffoldColor,
+          content: AppTextFormField(
             controller: controller,
-            obscureText: true,
+            isObscureText: true,
             keyboardType: TextInputType.number,
             maxLength: 4,
-            decoration: const InputDecoration(
-              hintText: 'Enter your PIN',
-            ),
+            hintText: 'Enter your PIN',
+            hintStyle: TextStyles.font16Regular,
+            backgroundColor: Colors.transparent,
           ),
+
           actions: [
             TextButton(
               onPressed: () => context.pop(),
@@ -163,16 +177,12 @@ class SettingsScreen extends StatelessWidget {
                 style: TextStyle(color: white),
               ),
             ),
-            ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(mainColor),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              onPressed: () async {
+            AppTextButton(
+              text: 'Confirm',
+              width: 100.w,
+              color: secondaryColor,
+              textStyle: TextStyles.font16Regular.copyWith(color: mainColor),
+              onTap: () async {
                 if (controller.text.length != 4) return;
 
                 final isValid = await context.read<PinCubit>().verifyPin(
@@ -192,10 +202,6 @@ class SettingsScreen extends StatelessWidget {
                   );
                 }
               },
-              child: const Text(
-                'Confirm',
-                style: TextStyle(color: white),
-              ),
             ),
           ],
         );
