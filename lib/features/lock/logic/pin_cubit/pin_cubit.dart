@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:secret_vault/core/helpers/app_boot.dart';
 import 'package:secret_vault/core/helpers/constants.dart';
-import 'package:secret_vault/core/helpers/crypto_isolate.dart';
-import 'package:secret_vault/core/helpers/crypto_service.dart';
+import 'package:secret_vault/features/lock/data/crypto_isolate.dart';
+import 'package:secret_vault/features/lock/data/crypto_service.dart';
 import 'package:secret_vault/core/helpers/secure_storage_helper.dart';
 
 part 'pin_state.dart';
@@ -48,7 +49,9 @@ class PinCubit extends Cubit<PinState> {
     );
 
     if (updated.length == pinLength) {
-      creating ? handleCreate(updated) : handleValidate(updated);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        creating ? handleCreate(updated) : handleValidate(updated);
+      });
     }
   }
 
@@ -87,21 +90,21 @@ class PinCubit extends Cubit<PinState> {
       final pinString = pin.join();
       final salt = CryptoService.generateSalt();
 
-      log('🔐 Creating PIN...');
+      log('Creating PIN...');
 
-      final hash = CryptoService.hashPinWithPBKDF2(
-        pin: pinString,
-        salt: salt,
+      final hash = await compute(
+        hashPinIsolate,
+        HashParams(pinString, salt),
       );
 
-      log('💾 Saving to storage...');
+      log('Saving to storage...');
 
       await Future.wait([
         SecureStorageHelper.setSecuredString(SecureStorageKeys.pinSalt, salt),
         SecureStorageHelper.setSecuredString(SecureStorageKeys.pinHash, hash),
       ]);
 
-      log('🔑 Deriving key...');
+      log('Deriving key...');
 
       final masterKey = await compute(
         deriveKeyIsolate,
@@ -113,12 +116,12 @@ class PinCubit extends Cubit<PinState> {
       SessionKeys.masterKey = masterKey;
       SessionKeys.sessionKey = sessionKey;
 
-      log('✅ PIN created successfully');
+      log('PIN created successfully');
 
       emit(const PinState.pinSuccess());
       AppBoot.hasPin = true;
     } catch (e, stackTrace) {
-      log('❌ Error creating PIN: $e');
+      log('Error creating PIN: $e');
       log('Stack trace: $stackTrace');
       emit(PinState.pinError('Error: $e'));
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -130,7 +133,7 @@ class PinCubit extends Cubit<PinState> {
     try {
       final pinString = pin.join();
 
-      log('🔍 Validating PIN...');
+      log('Validating PIN...');
 
       final results = await Future.wait([
         SecureStorageHelper.getSecuredString(SecureStorageKeys.pinSalt),
@@ -140,31 +143,31 @@ class PinCubit extends Cubit<PinState> {
       final salt = results[0];
       final savedHash = results[1];
 
-      log('📝 Salt: ${salt.isNotEmpty ? "Found" : "Empty"}');
-      log('📝 Hash: ${savedHash.isNotEmpty ? "Found" : "Empty"}');
+      log('Salt: ${salt.isNotEmpty ? "Found" : "Empty"}');
+      log('Hash: ${savedHash.isNotEmpty ? "Found" : "Empty"}');
 
       if (salt.isEmpty || savedHash.isEmpty) {
         emit(const PinState.pinError('No PIN found'));
         return;
       }
 
-      log('🔐 Hashing input...');
+      log('Hashing input...');
 
-      final inputHash = CryptoService.hashPinWithPBKDF2(
-        pin: pinString,
-        salt: salt,
+      final inputHash = await compute(
+        hashPinIsolate,
+        HashParams(pinString, salt),
       );
 
-      log('🔍 Comparing hashes...');
+      log('Comparing hashes...');
 
       if (inputHash == savedHash) {
-        log('✅ PIN correct!');
+        log('PIN correct!');
 
         attempts = 0;
 
-        final masterKey = CryptoService.deriveKey(
-          pin: pinString,
-          salt: salt,
+        final masterKey = await compute(
+          deriveKeyIsolate,
+          DeriveParams(pinString, salt),
         );
 
         final sessionKey = CryptoService.generateSessionKey();
@@ -175,7 +178,7 @@ class PinCubit extends Cubit<PinState> {
         emit(const PinState.pinSuccess());
         AppBoot.hasPin = true;
       } else {
-        log('❌ PIN incorrect');
+        log('PIN incorrect');
 
         attempts++;
         if (attempts >= maxAttempts) {
@@ -187,7 +190,7 @@ class PinCubit extends Cubit<PinState> {
         }
       }
     } catch (e, stackTrace) {
-      log('❌ Error validating PIN: $e');
+      log('Error validating PIN: $e');
       log('Stack trace: $stackTrace');
       emit(PinState.pinError('Error: $e'));
       await Future.delayed(const Duration(milliseconds: 1000));
@@ -258,17 +261,4 @@ class PinCubit extends Cubit<PinState> {
 
     return inputHash == savedHash;
   }
-}
-
-class HashParams {
-  final String pin;
-  final String salt;
-  HashParams(this.pin, this.salt);
-}
-
-String hashPinIsolate(HashParams params) {
-  return CryptoService.hashPinWithPBKDF2(
-    pin: params.pin,
-    salt: params.salt,
-  );
 }
