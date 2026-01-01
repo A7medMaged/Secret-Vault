@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:secret_vault/core/helpers/crypto_service.dart';
+import 'package:secret_vault/features/lock/data/crypto_service.dart';
 
 class SecureStorageKeys {
   static const String pinSalt = 'pin_salt';

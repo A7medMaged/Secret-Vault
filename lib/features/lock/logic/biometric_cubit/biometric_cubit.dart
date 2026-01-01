@@ -1,11 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:secret_vault/core/helpers/biometric_helper.dart';
+import 'package:secret_vault/features/lock/data/biometric_helper.dart';
 import 'package:secret_vault/core/helpers/constants.dart';
-import 'package:secret_vault/core/helpers/crypto_isolate.dart';
-import 'package:secret_vault/core/helpers/crypto_service.dart';
-import 'package:secret_vault/core/helpers/biometric_encrypt_helper.dart';
+import 'package:secret_vault/features/lock/data/crypto_isolate.dart';
+import 'package:secret_vault/features/lock/data/crypto_service.dart';
+import 'package:secret_vault/features/lock/data/biometric_encrypt_helper.dart';
 import 'package:secret_vault/core/helpers/secure_storage_helper.dart';
 
 part 'biometric_state.dart';
@@ -37,9 +39,9 @@ class BiometricCubit extends Cubit<BiometricState> {
         ),
       );
 
-      debugPrint('🔐 Biometric available: $biometricType');
+      log('Biometric available: $biometricType');
     } catch (e) {
-      debugPrint('❌ Error checking biometric: $e');
+      log('Error checking biometric: $e');
       emit(BiometricState.error(message: e.toString()));
     }
   }
@@ -47,7 +49,7 @@ class BiometricCubit extends Cubit<BiometricState> {
   /// Enable biometric authentication
   Future<bool> enableBiometric(String pin) async {
     try {
-      debugPrint('🔐 Enabling biometric authentication...');
+      log('Enabling biometric authentication...');
 
       final encryptedPin = await BiometricEncryptionHelper.encryptPin(pin);
 
@@ -61,10 +63,10 @@ class BiometricCubit extends Cubit<BiometricState> {
         'true',
       );
 
-      debugPrint('✅ Biometric enabled successfully');
+      log('Biometric enabled successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ Error enabling biometric: $e');
+      log('Error enabling biometric: $e');
       emit(const BiometricState.error(message: 'Failed to enable biometric'));
       return false;
     }
@@ -85,9 +87,9 @@ class BiometricCubit extends Cubit<BiometricState> {
         BiometricEncryptionHelper.clearKeys(),
       ]);
 
-      debugPrint('🔐 Biometric disabled');
+      log('Biometric disabled');
     } catch (e) {
-      debugPrint('❌ Error disabling biometric: $e');
+      log('Error disabling biometric: $e');
     }
   }
 
@@ -162,8 +164,8 @@ class BiometricCubit extends Cubit<BiometricState> {
         sessionKey: sessionKey,
       );
     } catch (e, stackTrace) {
-      debugPrint('❌ Biometric authentication error: $e');
-      debugPrint('Stack trace: $stackTrace');
+      log('Biometric authentication error: $e');
+      log('Stack trace: $stackTrace');
       emit(BiometricState.error(message: e.toString()));
       return null;
     }
