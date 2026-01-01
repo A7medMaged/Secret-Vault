@@ -22,6 +22,7 @@ class AppTextFormField extends StatelessWidget {
   final bool readOnly;
   final void Function()? onTap;
   final void Function(String)? onChanged;
+  final int? maxLength;
 
   const AppTextFormField({
     super.key,
@@ -43,6 +44,7 @@ class AppTextFormField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.onChanged,
+    this.maxLength,
   });
 
   @override
@@ -53,7 +55,8 @@ class AppTextFormField extends StatelessWidget {
       onTap: onTap,
       onChanged: onChanged,
       controller: controller,
-      cursorColor: black,
+      maxLength: maxLength,
+      cursorColor: mainColor,
       autovalidateMode: autovalidateMode,
       keyboardType: keyboardType ?? TextInputType.text,
       textInputAction: TextInputAction.done,

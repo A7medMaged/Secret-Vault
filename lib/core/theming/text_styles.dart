@@ -38,10 +38,16 @@ class TextStyles {
   );
 
   static TextStyle font14LightGreyRegular = TextStyle(
-    fontSize: 13.sp,
+    fontSize: 14.sp,
     fontWeight: FontWeightHelper.regular,
     fontFamily: 'exo2',
     color: lightGray,
+  );
+
+  static TextStyle font16Regular = TextStyle(
+    fontSize: 16.sp,
+    fontWeight: FontWeightHelper.regular,
+    fontFamily: 'exo2',
   );
 
   static TextStyle font22Regular = TextStyle(
