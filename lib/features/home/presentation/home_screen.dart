@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:secret_vault/core/helpers/extensions.dart';
 import 'package:secret_vault/core/routing/app_routes.dart';
+import 'package:secret_vault/core/theming/text_styles.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,7 +11,10 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: const Text('Home'),
+        title: Text(
+          'Home',
+          style: TextStyles.font24mainBold,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -24,7 +27,7 @@ class HomeScreen extends StatelessWidget {
       body: Center(
         child: Text(
           'Home Screen',
-          style: TextStyle(fontSize: 24.sp),
+          style: TextStyles.font24Regular,
         ),
       ),
     );
