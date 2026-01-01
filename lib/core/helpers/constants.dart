@@ -14,6 +14,7 @@ class SecureStorageKeys {
 class SessionKeys {
   static Uint8List? masterKey;
   static Uint8List? sessionKey;
+  static bool isUnlocked = false;
 
   static Future<Uint8List?> getMasterKey(String pin, String salt) async {
     final masterKey = CryptoService.deriveKey(
@@ -28,5 +29,6 @@ class SessionKeys {
   static void clear() {
     masterKey = null;
     sessionKey = null;
+    isUnlocked = false;
   }
 }

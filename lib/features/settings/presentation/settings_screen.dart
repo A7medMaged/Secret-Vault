@@ -158,9 +158,20 @@ class SettingsScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => context.pop(),
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: white),
+              ),
             ),
             ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(mainColor),
+                shape: WidgetStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
               onPressed: () async {
                 if (controller.text.length != 4) return;
 
@@ -181,7 +192,10 @@ class SettingsScreen extends StatelessWidget {
                   );
                 }
               },
-              child: const Text('Confirm'),
+              child: const Text(
+                'Confirm',
+                style: TextStyle(color: white),
+              ),
             ),
           ],
         );
