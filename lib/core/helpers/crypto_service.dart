@@ -47,7 +47,7 @@ class CryptoService {
   static Uint8List deriveKey({
     required String pin,
     required String salt,
-    int iterations = kReleaseMode ? 100000 : 5000,
+    int iterations = kReleaseMode ? 10000 : 1000,
     int keyLength = 32,
   }) {
     final derivator = PBKDF2KeyDerivator(
