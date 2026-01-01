@@ -5,6 +5,7 @@ import 'package:secret_vault/core/helpers/constants.dart';
 import 'package:secret_vault/core/helpers/extensions.dart';
 import 'package:secret_vault/core/routing/app_routes.dart';
 import 'package:secret_vault/core/theming/colors.dart';
+import 'package:secret_vault/core/theming/text_styles.dart';
 import 'package:secret_vault/features/lock/logic/biometric_cubit/biometric_cubit.dart';
 import 'package:secret_vault/features/lock/logic/pin_cubit/pin_cubit.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/key_button.dart';
@@ -67,10 +68,7 @@ class Keypad extends StatelessWidget {
     return KeyButton(
       child: Text(
         number,
-        style: TextStyle(
-          fontSize: 22.sp,
-          color: white,
-        ),
+        style: TextStyles.font22Regular,
       ),
       onTap: () {
         context.read<PinCubit>().onNumberPressed(

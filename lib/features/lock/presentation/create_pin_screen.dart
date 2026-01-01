@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:secret_vault/core/helpers/extensions.dart';
 import 'package:secret_vault/core/helpers/spacing.dart';
+import 'package:secret_vault/core/theming/text_styles.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/dots_bloc_builder.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/key_pad.dart';
 import 'package:secret_vault/features/lock/presentation/widgets/logo.dart';
@@ -31,8 +32,7 @@ class CreatePinScreen extends StatelessWidget {
               padding: .only(bottom: 16.h),
               child: Text(
                 'You will need this PIN to unlock the app',
-                style: TextStyle(
-                  fontSize: 12.sp,
+                style: TextStyles.font12Regular.copyWith(
                   color: Colors.white.withOpacity(0.6),
                 ),
               ),
